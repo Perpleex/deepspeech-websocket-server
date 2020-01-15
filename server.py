@@ -24,9 +24,9 @@ parser.add_argument('-l', '--lm', nargs='?', const='lm.binary',
                     help='Path to the language model binary file. Default: lm.binary')
 parser.add_argument('-t', '--trie', nargs='?', const='trie',
                     help='Path to the language model trie file created with native_client/generate_trie. Default: trie')
-parser.add_argument('--lw', type=float, default=1.5,
+parser.add_argument('--lw', type=float, default=0.75,
                     help='The alpha hyperparameter of the CTC decoder. Language Model weight. Default: 1.5')
-parser.add_argument('--vwcw', type=float, default=2.25,
+parser.add_argument('--vwcw', type=float, default=1.85,
                     help='Valid word insertion weight. This is used to lessen the word insertion penalty when the inserted word is part of the vocabulary. Default: 2.25')
 parser.add_argument('--bw', type=int, default=1024,
                     help='Beam width used in the CTC decoder when building candidate transcriptions. Default: 1024')
@@ -57,12 +57,11 @@ print('Initializing model...')
 logger.info("ARGS.model: %s", ARGS.model)
 logger.info("ARGS.alphabet: %s", ARGS.alphabet)
 
-model = deepspeech.Model(ARGS.model, N_FEATURES, N_CONTEXT, ARGS.alphabet, BEAM_WIDTH)
+model = deepspeech.Model(ARGS.model, BEAM_WIDTH)
 if ARGS.lm and ARGS.trie:
     logger.info("ARGS.lm: %s", ARGS.lm)
     logger.info("ARGS.trie: %s", ARGS.trie)
-    model.enableDecoderWithLM(ARGS.alphabet,
-                              ARGS.lm,
+    model.enableDecoderWithLM(ARGS.lm,
                               ARGS.trie,
                               LM_WEIGHT,
                               VALID_WORD_COUNT_WEIGHT)
@@ -82,7 +81,7 @@ def recognize(ws):
             if not start_time:
                 # Start of stream (utterance)
                 start_time = time()
-                sctx = model.setupStream()
+                sctx = model.createStream()
                 assert not gSem_acquired
                 # logger.debug("acquiring lock for deepspeech ...")
                 gSem.acquire(blocking=True)
@@ -118,7 +117,7 @@ def recognize(ws):
 def index():
     return template('index')
 
-run(host='127.0.0.1', port=ARGS.port, server=GeventWebSocketServer)
+run(host='192.168.0.66', port=ARGS.port, server=GeventWebSocketServer)
 
 # python server.py --model ../models/daanzu-30330/output_graph.pb --alphabet ../models/daanzu-30330/alphabet.txt --lm ../models/daanzu-30330/lm.binary --trie ../models/daanzu-30330/trie
 # python server.py --model ../models/daanzu-30330.2/output_graph.pb --alphabet ../models/daanzu-30330.2/alphabet.txt --lm ../models/daanzu-30330.2/lm.binary --trie ../models/daanzu-30330.2/trie
