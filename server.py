@@ -25,9 +25,9 @@ parser.add_argument('-l', '--lm', nargs='?', const='lm.binary',
 parser.add_argument('-t', '--trie', nargs='?', const='trie',
                     help='Path to the language model trie file created with native_client/generate_trie. Default: trie')
 parser.add_argument('--lw', type=float, default=0.75,
-                    help='The alpha hyperparameter of the CTC decoder. Language Model weight. Default: 1.5')
+                    help='Language Model alpha. Default: 0.75')
 parser.add_argument('--vwcw', type=float, default=1.85,
-                    help='Valid word insertion weight. This is used to lessen the word insertion penalty when the inserted word is part of the vocabulary. Default: 2.25')
+                    help='Language Model Beta. Default: 1.85)
 parser.add_argument('--bw', type=int, default=1024,
                     help='Beam width used in the CTC decoder when building candidate transcriptions. Default: 1024')
 parser.add_argument('-p', '--port', default=8080,
